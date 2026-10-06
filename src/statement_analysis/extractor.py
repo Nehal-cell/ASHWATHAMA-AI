@@ -36,6 +36,36 @@ def extract_time(text: str) -> datetime | None:
     return datetime(2026, 1, 15, hour, minute)
 
 
+def extract_end_time(text: str) -> datetime | None:
+    """
+    Extract an end time from phrases such as:
+        until 9 PM
+        till 9:30 PM
+    """
+
+    pattern = r"\b(?:until|till)\s+(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)\b"
+
+    match = re.search(pattern, text)
+
+    if not match:
+        return None
+
+    hour = int(match.group(1))
+    minute = int(match.group(2) or 0)
+    period = match.group(3).upper()
+
+    if hour < 1 or hour > 12 or minute > 59:
+        return None
+
+    if period == "AM":
+        if hour == 12:
+            hour = 0
+    else:
+        if hour != 12:
+            hour += 12
+
+    return datetime(2026, 1, 15, hour, minute)
+
 def extract_location(text: str) -> str | None:
     """
     Extract a small set of known locations from statement text.
@@ -63,7 +93,10 @@ def extract_location(text: str) -> str | None:
 
     return None
 
-def extract_subject_action(text: str) -> tuple[str | None, str | None]:
+
+def extract_subject_action(
+    text: str,
+) -> tuple[str | None, str | None]:
     """
     Extract a basic subject and action from a sentence.
 
