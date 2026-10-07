@@ -1,6 +1,7 @@
 from src.evidence.schema import EvidenceRecord
 from src.statement_analysis.claim_schema import Claim
 from src.evidence_matching.match_schema import MatchResult
+from datetime import timedelta
 
 
 def _get_reliability(record: EvidenceRecord) -> float:
@@ -13,6 +14,53 @@ def _get_reliability(record: EvidenceRecord) -> float:
         return 0.5
 
     return record.reliability
+def _time_matches(
+    claim_time,
+    evidence_time,
+    tolerance_minutes: int = 5,
+) -> bool:
+    if claim_time is None:
+        return True
+
+    difference = abs(claim_time - evidence_time)
+
+    return difference <= timedelta(minutes=tolerance_minutes)
+
+def _event_matches_claim_window(
+    claim: Claim,
+    evidence_time,
+    tolerance_minutes: int = 5,
+) -> bool:
+    """
+    Check whether an evidence event falls within
+    the claim's time window.
+
+    A small tolerance is allowed before the start
+    and after the end of the claim.
+    """
+
+    if claim.start_time is None and claim.end_time is None:
+        return True
+
+    tolerance = timedelta(minutes=tolerance_minutes)
+
+    if claim.start_time is not None:
+        window_start = claim.start_time - tolerance
+    else:
+        window_start = None
+
+    if claim.end_time is not None:
+        window_end = claim.end_time + tolerance
+    else:
+        window_end = None
+
+    if window_start is not None and evidence_time < window_start:
+        return False
+
+    if window_end is not None and evidence_time > window_end:
+        return False
+
+    return True
 
 
 def match_claim_to_evidence(
@@ -47,9 +95,9 @@ def match_claim_to_evidence(
     for record in evidence:
 
         # Check time compatibility
-        time_matches = (
-            claim.start_time is None
-            or record.event_time == claim.start_time
+        time_matches = _event_matches_claim_window(
+            claim,
+                record.event_time,
         )
 
         if not time_matches:
