@@ -26,42 +26,50 @@ def _time_matches(
 
     return difference <= timedelta(minutes=tolerance_minutes)
 
+
 def _event_matches_claim_window(
     claim: Claim,
     evidence_time,
     tolerance_minutes: int = 5,
 ) -> bool:
     """
-    Check whether an evidence event falls within
-    the claim's time window.
+    Check whether evidence falls within a claim's time window.
 
-    A small tolerance is allowed before the start
-    and after the end of the claim.
+    A single timestamp is treated as a point event with tolerance.
+    A start/end pair is treated as a duration.
     """
-
-    if claim.start_time is None and claim.end_time is None:
-        return True
 
     tolerance = timedelta(minutes=tolerance_minutes)
 
-    if claim.start_time is not None:
-        window_start = claim.start_time - tolerance
-    else:
-        window_start = None
+    start_time = claim.start_time
+    end_time = claim.end_time
 
-    if claim.end_time is not None:
-        window_end = claim.end_time + tolerance
-    else:
-        window_end = None
+    # No time information: time cannot be used to filter evidence.
+    if start_time is None and end_time is None:
+        return True
 
-    if window_start is not None and evidence_time < window_start:
-        return False
+    # A single start timestamp represents a point event.
+    if start_time is not None and end_time is None:
+        return (
+            start_time - tolerance
+            <= evidence_time
+            <= start_time + tolerance
+        )
 
-    if window_end is not None and evidence_time > window_end:
-        return False
+    # A single end timestamp also represents a point event.
+    if start_time is None and end_time is not None:
+        return (
+            end_time - tolerance
+            <= evidence_time
+            <= end_time + tolerance
+        )
 
-    return True
-
+    # Both timestamps define a duration.
+    return (
+        start_time - tolerance
+        <= evidence_time
+        <= end_time + tolerance
+    )
 
 def match_claim_to_evidence(
     claim: Claim,
@@ -183,4 +191,26 @@ def match_claim_to_evidence(
             contradicted_records,
             key=_get_reliability,
         )
+
         
+        reliability = _get_reliability(best_record)
+
+        return MatchResult(
+            claim_id=claim.claim_id,
+            evidence_id=best_record.evidence_id,
+            status="CONTRADICTED",
+            confidence=reliability,
+            reason=(
+                "The available evidence conflicts with the claim. "
+                "Confidence reflects evidence reliability."
+            ),
+        )
+
+    return MatchResult(
+        claim_id=claim.claim_id,
+        status="INSUFFICIENT_EVIDENCE",
+        reason=(
+            "No evidence records were sufficiently compatible "
+            "with the claim's time and available details."
+        ),
+    )
