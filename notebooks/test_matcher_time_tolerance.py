@@ -197,3 +197,36 @@ def test_matcher_rejects_evidence_outside_claim_window():
     )
 
     assert result.status == "INSUFFICIENT_EVIDENCE"
+
+def test_matcher_accepts_exact_time_tolerance_boundary():
+    claim = Claim(
+        claim_id="CL_TOL_003",
+        statement_id="ST_TOL_003",
+        subject="the person",
+        action="arrived",
+        start_time=datetime(2026, 1, 15, 19, 0),
+        location="office",
+        description="The person arrived at the office at 7 PM.",
+    )
+
+    evidence = [
+        EvidenceRecord(
+            case_id="CASE_TOL_003",
+            evidence_id="EV_TOL_003",
+            source_device="phone",
+            artifact_type="location_event",
+            event_time=datetime(2026, 1, 15, 19, 5),
+            description="Phone location indicates office.",
+            source_tool="synthetic_test",
+            reliability=0.8,
+            metadata={"location": "office"},
+        )
+    ]
+
+    result = match_claim_to_evidence(
+        claim=claim,
+        evidence=evidence,
+    )
+
+    assert result.status == "SUPPORTED"
+    assert result.evidence_id == "EV_TOL_003"

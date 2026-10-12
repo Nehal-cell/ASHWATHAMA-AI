@@ -71,6 +71,77 @@ def _event_matches_claim_window(
         <= end_time + tolerance
     )
 
+
+def _is_evidence_relevant(
+    claim: Claim,
+    record: EvidenceRecord,
+) -> bool:
+    """
+    Check whether an evidence record can directly support
+    the current basic claim type.
+    """
+
+    location_actions = {
+        "left",
+        "arrived",
+        "went",
+        "stayed",
+        "visited",
+    }
+
+    digital_actions = {
+        "opened",
+        "modified",
+        "deleted",
+        "created",
+        "downloaded",
+    }
+
+    action = claim.action.strip().casefold()
+
+    if action in digital_actions:
+        if record.artifact_type != "file_activity":
+            return False
+        
+        claim_object = claim.object
+
+        if claim_object is not None:
+            evidence_file_name = record.metadata.get("file_name")
+
+            if evidence_file_name is None:
+                return False
+
+            if str(claim_object).strip().casefold() != str(
+                evidence_file_name
+            ).strip().casefold():
+                return False
+
+
+        evidence_action = record.metadata.get("action")
+
+        if evidence_action is not None:
+            return str(evidence_action).strip().casefold() == action
+
+        return action in record.description.strip().casefold()
+
+    if action in location_actions:
+        if record.artifact_type in {
+            "call_log",
+            "file_activity",
+        }:
+            return bool(record.metadata.get("location"))
+
+        if record.artifact_type not in {
+            "location",
+            "location_event",
+            "location_record",
+        }:
+            return False
+
+    return True
+
+
+
 def match_claim_to_evidence(
     claim: Claim,
     evidence: list[EvidenceRecord],
@@ -110,11 +181,23 @@ def match_claim_to_evidence(
 
         if not time_matches:
             continue
+        if not _is_evidence_relevant(claim, record):
+            continue
 
+
+       
         evidence_location = record.metadata.get("location")
 
-        if claim.location is not None and evidence_location is not None:
+        location_unreliable_artifacts = {
+            "call_log",
+            "file_activity",
+        }
 
+        if (
+            claim.location is not None
+            and evidence_location is not None
+            and record.artifact_type not in location_unreliable_artifacts
+        ):
             if (
                 claim.location.lower()
                 == str(evidence_location).lower()
@@ -122,6 +205,12 @@ def match_claim_to_evidence(
                 supported_records.append(record)
             else:
                 contradicted_records.append(record)
+
+        elif (
+            claim.location is not None
+            and record.artifact_type in location_unreliable_artifacts
+        ):
+            continue
 
         else:
             supported_records.append(record)
