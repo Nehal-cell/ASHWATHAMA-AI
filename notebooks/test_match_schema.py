@@ -68,3 +68,14 @@ def test_insufficient_evidence_accepts_none_confidence():
     )
 
     assert result.confidence is None
+
+
+def test_mixed_result_requires_both_reliability_scores():
+    with pytest.raises(ValidationError):
+        MatchResult(
+            claim_id="CL_MIXED_INVALID",
+            status="MIXED",
+            confidence=None,
+            supporting_reliability=0.9,
+            reason="Evidence is conflicting.",
+        )

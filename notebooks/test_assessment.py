@@ -24,12 +24,14 @@ results = [
         confidence=None,
         reason="Not enough evidence to assess this claim."
     ),
-    MatchResult(
+        MatchResult(
         claim_id="CL_004",
         evidence_id="EV_004",
         status="MIXED",
-        confidence=0.5,
-        reason="Available evidence is conflicting."
+        confidence=None,
+        supporting_reliability=0.9,
+        contradicting_reliability=0.6,
+        reason="Evidence is conflicting.",
     ),
 ]
 

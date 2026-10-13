@@ -1,7 +1,7 @@
 from src.evidence.schema import EvidenceRecord
 from src.statement_analysis.claim_schema import Claim
 from src.evidence_matching.match_schema import MatchResult
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 
 def _get_reliability(record: EvidenceRecord) -> float:
@@ -26,6 +26,13 @@ def _time_matches(
 
     return difference <= timedelta(minutes=tolerance_minutes)
 
+def _normalize_datetime(value: datetime) -> datetime:
+    """Normalize datetimes to UTC; treat naive values as UTC."""
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(timezone.utc)
+
 
 def _event_matches_claim_window(
     claim: Claim,
@@ -35,42 +42,31 @@ def _event_matches_claim_window(
     """
     Check whether evidence falls within a claim's time window.
 
-    A single timestamp is treated as a point event with tolerance.
-    A start/end pair is treated as a duration.
+    Naive timestamps are treated as UTC so comparisons are consistent.
     """
-
     tolerance = timedelta(minutes=tolerance_minutes)
 
     start_time = claim.start_time
     end_time = claim.end_time
 
-    # No time information: time cannot be used to filter evidence.
     if start_time is None and end_time is None:
         return True
 
-    # A single start timestamp represents a point event.
+    evidence_time = _normalize_datetime(evidence_time)
+
+    if start_time is not None:
+        start_time = _normalize_datetime(start_time)
+
+    if end_time is not None:
+        end_time = _normalize_datetime(end_time)
+
     if start_time is not None and end_time is None:
-        return (
-            start_time - tolerance
-            <= evidence_time
-            <= start_time + tolerance
-        )
+        return start_time - tolerance <= evidence_time <= start_time + tolerance
 
-    # A single end timestamp also represents a point event.
     if start_time is None and end_time is not None:
-        return (
-            end_time - tolerance
-            <= evidence_time
-            <= end_time + tolerance
-        )
+        return end_time - tolerance <= evidence_time <= end_time + tolerance
 
-    # Both timestamps define a duration.
-    return (
-        start_time - tolerance
-        <= evidence_time
-        <= end_time + tolerance
-    )
-
+    return start_time - tolerance <= evidence_time <= end_time + tolerance
 
 def _is_evidence_relevant(
     claim: Claim,
@@ -102,7 +98,7 @@ def _is_evidence_relevant(
     if action in digital_actions:
         if record.artifact_type != "file_activity":
             return False
-        
+
         claim_object = claim.object
 
         if claim_object is not None:
@@ -185,7 +181,7 @@ def match_claim_to_evidence(
             continue
 
 
-       
+
         evidence_location = record.metadata.get("location")
 
         location_unreliable_artifacts = {
@@ -232,11 +228,6 @@ def match_claim_to_evidence(
             best_contradiction
         )
 
-        confidence = max(
-            support_reliability,
-            contradiction_reliability,
-        )
-
         return MatchResult(
             claim_id=claim.claim_id,
             evidence_id=(
@@ -245,16 +236,18 @@ def match_claim_to_evidence(
                 else best_contradiction.evidence_id
             ),
             status="MIXED",
-            confidence=confidence,
+            confidence=None,
+            supporting_reliability=support_reliability,
+            contradicting_reliability=contradiction_reliability,
             reason=(
                 "Some evidence is consistent with the claim, "
                 "while other evidence conflicts with it. "
-                "Evidence reliability was considered."
+                "Supporting and contradicting evidence reliability "
+                "scores are reported separately."
             ),
         )
 
     if supported_records:
-
         best_record = max(
             supported_records,
             key=_get_reliability,
@@ -281,7 +274,7 @@ def match_claim_to_evidence(
             key=_get_reliability,
         )
 
-        
+
         reliability = _get_reliability(best_record)
 
         return MatchResult(
