@@ -94,6 +94,7 @@ def extract_location(text: str) -> str | None:
     return None
 
 
+
 def extract_subject_action(
     text: str,
 ) -> tuple[str | None, str | None]:
@@ -104,12 +105,12 @@ def extract_subject_action(
     """
 
     patterns = [
-        (r"\b(the person|he|she|they)\s+(left)\b", "left"),
-        (r"\b(the person|he|she|they)\s+(arrived)\b", "arrived"),
-        (r"\b(the person|he|she|they)\s+(went)\b", "went"),
-        (r"\b(the person|he|she|they)\s+(stayed)\b", "stayed"),
-        (r"\b(the person|he|she|they)\s+(was)\b", "was"),
-        (r"\b(the person|he|she|they)\s+(visited)\b", "visited"),
+        (r"\b(the person|i|he|she|they)\s+(left)\b", "left"),
+        (r"\b(the person|i|he|she|they)\s+(arrived)\b", "arrived"),
+        (r"\b(the person|i|he|she|they)\s+(went)\b", "went"),
+        (r"\b(the person|i|he|she|they)\s+(stayed)\b", "stayed"),
+        (r"\b(the person|i|he|she|they)\s+(was)\b", "was"),
+        (r"\b(the person|i|he|she|they)\s+(visited)\b", "visited"),
     ]
 
     text_lower = text.lower()

@@ -3,6 +3,7 @@ from src.statement_analysis.claim_schema import Claim
 from src.evidence_matching.match_schema import MatchResult
 from datetime import datetime, timedelta, timezone
 
+IST = timezone(timedelta(hours=5, minutes=30))
 
 def _get_reliability(record: EvidenceRecord) -> float:
     """
@@ -27,11 +28,12 @@ def _time_matches(
     return difference <= timedelta(minutes=tolerance_minutes)
 
 def _normalize_datetime(value: datetime) -> datetime:
-    """Normalize datetimes to UTC; treat naive values as UTC."""
+    """Normalize datetimes to UTC, treating naive values as IST."""
     if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
+        value = value.replace(tzinfo=IST)
 
     return value.astimezone(timezone.utc)
+
 
 
 def _event_matches_claim_window(
@@ -179,8 +181,6 @@ def match_claim_to_evidence(
             continue
         if not _is_evidence_relevant(claim, record):
             continue
-
-
 
         evidence_location = record.metadata.get("location")
 

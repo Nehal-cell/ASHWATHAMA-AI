@@ -1,5 +1,6 @@
 
 from fastapi import FastAPI, HTTPException
+from httpcore import request
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -48,20 +49,35 @@ def home():
     response_model=CaseAssessment,
 )
 
+
+@app.post(
+    "/assess",
+    response_model=CaseAssessment,
+)
 def assess(request: AssessmentRequest):
     try:
-    
+        print("\n--- FRONTEND REQUEST DEBUG ---")
+        print("Statement ID:", request.statement_id)
+        print("Statement:", repr(request.statement))
+        print("Evidence count:", len(request.evidence))
+
+        for item in request.evidence:
+            print("Evidence ID:", item.evidence_id)
+            print("Artifact type:", repr(item.artifact_type))
+            print("Event time:", repr(item.event_time))
+            print("Description:", repr(item.description))
+            print("Metadata:", item.metadata)
+
         return run_assessment(
             statement_id=request.statement_id,
             statement=request.statement,
             evidence=request.evidence,
         )
-    
-    except Exception as exc:
+
+    except Exception:
         import traceback
         traceback.print_exc()
         raise HTTPException(
             status_code=500,
             detail="Assessment could not be completed due to an internal server error.",
         )
-
