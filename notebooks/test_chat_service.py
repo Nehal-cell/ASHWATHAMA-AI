@@ -1,4 +1,3 @@
-
 from types import SimpleNamespace
 
 import pytest
@@ -44,23 +43,22 @@ def test_build_chat_context_rejects_empty_question():
 def test_generate_chat_response_returns_gemini_text(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "fake-test-key")
 
-    class FakeModels:
-        def generate_content(self, **kwargs):
-            assert kwargs["model"] == "gemini-3.8-flash"
-            assert "Explain the result" in kwargs["contents"]
-            return SimpleNamespace(text="Evidence supports this claim.")
+    class FakeInteractions:
+        def create(self, **kwargs):
+            assert kwargs["model"] == "gemini-3.5-flash-lite"
+            assert "Explain the result" in kwargs["input"]
+            assert "Never invent evidence" in kwargs["input"]
+
+            return SimpleNamespace(
+                output_text="Evidence supports this claim."
+            )
 
     class FakeClient:
         def __init__(self, api_key):
             assert api_key == "fake-test-key"
-            self.models = FakeModels()
+            self.interactions = FakeInteractions()
 
     monkeypatch.setattr(chat_service.genai, "Client", FakeClient)
-    monkeypatch.setattr(
-        chat_service.types,
-        "GenerateContentConfig",
-        lambda **kwargs: kwargs,
-    )
 
     result = generate_chat_response("Explain the result")
 
@@ -70,26 +68,21 @@ def test_generate_chat_response_returns_gemini_text(monkeypatch):
 def test_generate_chat_response_handles_api_failure(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "fake-test-key")
 
-    class FakeClient:
-        def __init__(self, api_key):
-            self.models = SimpleNamespace(
-                generate_content=lambda **kwargs: (
-                    _raise_api_error()
-                )
-            )
-
-    def _raise_api_error():
+    def raise_api_error(**kwargs):
         raise Exception("Simulated API failure with sensitive details")
 
-    monkeypatch.setattr(chat_service.genai, "Client", FakeClient)
-    monkeypatch.setattr(
-        chat_service.types,
-        "GenerateContentConfig",
-        lambda **kwargs: kwargs,
-    )
+    class FakeClient:
+        def __init__(self, api_key):
+            self.interactions = SimpleNamespace(
+                create=raise_api_error
+            )
 
-    with pytest.raises(RuntimeError, match="Please retry later"):
+    monkeypatch.setattr(chat_service.genai, "Client", FakeClient)
+
+    with pytest.raises(RuntimeError, match="Please retry later") as exc_info:
         generate_chat_response("Explain the result")
+
+    assert "sensitive details" not in str(exc_info.value)
 
 
 def test_generate_chat_response_rejects_missing_api_key(monkeypatch):

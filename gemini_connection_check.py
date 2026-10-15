@@ -1,31 +1,50 @@
-
 import os
 
 from dotenv import load_dotenv
 from google import genai
-from google.genai import errors
 
-load_dotenv()
 
-api_key = os.getenv("GEMINI_API_KEY")
+def main():
+    # Load environment variables from .env
+    load_dotenv()
 
-if not api_key:
-    raise ValueError(
-        "GEMINI_API_KEY .env file mein nahi mili."
-    )
+    # Read API key without displaying it
+    api_key = os.getenv("GEMINI_API_KEY")
 
-client = genai.Client(api_key=api_key)
+    if not api_key:
+        print(
+            "Error: GEMINI_API_KEY is missing. "
+            "Please check your local .env configuration."
+        )
+        return
 
-try:
-    response = client.models.generate_content(
-        model="gemini-3.8-flash",
-        contents=(
-            "Reply with exactly: "
-            "ASHWATHAMA AI Gemini connection successful."
-        ),
-    )
-    print(response.text)
+    try:
+        # Initialize Gemini client
+        client = genai.Client(api_key=api_key)
 
-except errors.APIError as exc:
-    print(f"Gemini API error: {exc.code}")
-    print(exc.message)
+        # Test the Interactions API
+        interaction = client.interactions.create(
+            model="gemini-3.5-flash-lite",
+            input=(
+                "Reply with exactly: "
+                "ASHWATHAMA AI Gemini connection successful."
+            ),
+        )
+
+        response_text = interaction.output_text
+
+        if not response_text or not response_text.strip():
+            print("Error: Gemini returned an empty response.")
+            return
+
+        print(response_text)
+
+    except Exception as exc:
+        # Show diagnostic details without exposing the API key
+        print("Gemini connection test failed.")
+        print(f"Error type: {type(exc).__name__}")
+        print(f"Error details: {exc}")
+
+
+if __name__ == "__main__":
+    main()
