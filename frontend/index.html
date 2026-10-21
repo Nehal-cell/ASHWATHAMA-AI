@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07110d">
+  <meta
+    name="description"
+    content="ASHWATHAMA AI — Digital Forensics and Evidence Assessment System"
+  >
+
+  <title>ASHWATHAMA AI | Forensic Assessment System</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header class="topbar">
+    <button
+      class="mobile-menu"
+      id="mobile-menu"
+      type="button"
+      aria-label="Open navigation"
+      aria-expanded="false"
+    >
+      ☰
+    </button>
+
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">A</div>
+
+      <div class="brand-text">
+        <h1>ASHWATHAMA AI</h1>
+        <p>Digital Forensics &amp; Evidence Assessment System</p>
+        <span>FORENSIC ANALYSIS PROTOTYPE</span>
+      </div>
+    </div>
+
+    <div class="header-status">
+      <span class="header-status-indicator"></span>
+
+      <div>
+        <strong>System Status</strong>
+        <span id="header-status-text">Checking connection...</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-heading">MAIN MENU</div>
+
+      <nav class="sidebar-nav" aria-label="Main navigation">
+
+        <button
+          class="nav-item active"
+          type="button"
+          data-section="home"
+        >
+          <span class="nav-icon" aria-hidden="true">⌂</span>
+          <span>Home</span>
+        </button>
+
+        <button
+          class="nav-item"
+          type="button"
+          data-section="assessment"
+        >
+          <span class="nav-icon" aria-hidden="true">▤</span>
+          <span>New Assessment</span>
+        </button>
+
+        <button
+          class="nav-item"
+          type="button"
+          data-section="history"
+        >
+          <span class="nav-icon" aria-hidden="true">◷</span>
+          <span>Assessment History</span>
+        </button>
+
+        <button
+          class="nav-item"
+          type="button"
+          data-section="ai-assistant"
+        >
+          <span class="nav-icon" aria-hidden="true">✳</span>
+          <span>AI Assistant</span>
+        </button>
+
+        <button
+          class="nav-item"
+          type="button"
+          data-section="evidence"
+        >
+          <span class="nav-icon" aria-hidden="true">▥</span>
+          <span>Evidence Repository</span>
+        </button>
+
+        <button
+          class="nav-item"
+          type="button"
+          data-section="reports"
+        >
+          <span class="nav-icon" aria-hidden="true">▧</span>
+          <span>Reports</span>
+        </button>
+
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-line"></div>
+
+        <strong>PROJECT INFORMATION</strong>
+
+        <p>ASHWATHAMA AI</p>
+        <p>Digital Forensics Research Prototype</p>
+
+        <span>For authorized testing and research</span>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="home">
+
+      <!-- DASHBOARD HEADING -->
+      <div class="page-heading">
+        <div>
+          <p class="breadcrumb">HOME / FORENSIC ANALYSIS</p>
+
+          <h2>Forensic Assessment Dashboard</h2>
+
+          <p class="page-description">
+            Review statement claims against the supplied evidence.
+          </p>
+        </div>
+
+        <div class="prototype-label">
+          <span></span>
+          PROTOTYPE SYSTEM
+        </div>
+      </div>
+
+      <!-- PROTOTYPE NOTICE -->
+      <div class="notice-banner" id="theme-note" role="note">
+        <span class="notice-symbol" aria-hidden="true">i</span>
+
+        <p>
+          <strong>Important:</strong>
+          Findings depend on the quality and availability of the supplied
+          evidence. This system does not determine guilt or establish whether
+          a person is lying.
+        </p>
+      </div>
+
+      <!-- DASHBOARD GRID -->
+      <div class="dashboard-grid">
+
+        <!-- LEFT COLUMN: ASSESSMENT FORM -->
+        <section
+          class="panel assessment-panel"
+          id="assessment-section"
+        >
+          <div class="panel-header">
+            <div>
+              <span class="section-number">01</span>
+              <h3>New Assessment</h3>
+            </div>
+
+            <span class="panel-reference">ASSESSMENT FORM</span>
+          </div>
+
+          <div class="panel-intro">
+            Enter the statement and corresponding evidence details.
+            Fields marked <span class="required-mark">*</span> are required.
+          </div>
+
+          <form id="assessment-form" novalidate>
+
+            <!-- STATEMENT DETAILS -->
+            <div class="form-section">
+              <h4>Statement Details</h4>
+
+              <div class="form-row two-columns">
+
+                <div class="form-group">
+                  <label for="statement-id">
+                    Statement ID <span class="required-mark">*</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    id="statement-id"
+                    name="statement_id"
+                    placeholder="e.g., ST-2026-001"
+                    required
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="case-id">
+                    Case ID <span class="required-mark">*</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    id="case-id"
+                    name="case_id"
+                    placeholder="e.g., CASE-2026-001"
+                    required
+                  >
+                </div>
+
+              </div>
+
+              <div class="form-group">
+                <label for="statement">
+                  Statement to Assess
+                  <span class="required-mark">*</span>
+                </label>
+
+                <textarea
+                  id="statement"
+                  name="statement"
+                  rows="4"
+                  maxlength="2000"
+                  placeholder="Enter the statement to be assessed..."
+                  required
+                ></textarea>
+
+                <div class="field-footer">
+                  <span>Enter the claim exactly as provided.</span>
+                  <span id="char-count">0 characters</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- EVIDENCE DETAILS -->
+            <div class="form-section">
+              <h4>Evidence Details</h4>
+
+              <div class="form-row three-columns">
+
+                <div class="form-group">
+                  <label for="evidence-id">
+                    Evidence ID <span class="required-mark">*</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    id="evidence-id"
+                    name="evidence_id"
+                    placeholder="EV-001"
+                    required
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="source-device">Source Device</label>
+
+                  <select id="source-device" name="source_device">
+                    <option value="phone">Mobile Phone</option>
+                    <option value="laptop">Laptop / Computer</option>
+                    <option value="cloud">Cloud Account</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="artifact-type">Artifact Type</label>
+
+                  <select id="artifact-type" name="artifact_type">
+                    <option value="call_log">Call Log</option>
+                    <option value="message">Message</option>
+                    <option value="file_activity">File Activity</option>
+                    <option value="location">Location Record</option>
+                    <option value="browser_history">Browser History</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+              </div>
+
+              <div class="form-row three-columns">
+
+                <div class="form-group">
+                  <label for="event-time">
+                    Event Time <span class="required-mark">*</span>
+                  </label>
+
+                  <input
+                    type="datetime-local"
+                    id="event-time"
+                    name="event_time"
+                    required
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="reliability">
+                    Reliability <span class="required-mark">*</span>
+                  </label>
+
+                  <div class="range-control">
+                    <input
+                      type="range"
+                      id="reliability"
+                      name="reliability"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value="0.50"
+                    >
+
+                    <output
+                      id="reliability-value"
+                      for="reliability"
+                    >0.50</output>
+                  </div>
+
+                  <span class="field-help">
+                    Preliminary input estimate
+                  </span>
+                </div>
+
+                <div class="form-group">
+                  <label for="source-tool">
+                    Source / Tool <span class="required-mark">*</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    id="source-tool"
+                    name="source_tool"
+                    placeholder="e.g., Manual sample entry"
+                    required
+                  >
+                </div>
+
+              </div>
+
+              <div class="form-group">
+                <label for="description">
+                  Evidence Description
+                  <span class="required-mark">*</span>
+                </label>
+
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="Describe what this evidence records..."
+                  required
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="source-reference">
+                  Source Reference
+                  <span class="optional-label">(Optional)</span>
+                </label>
+
+                <input
+                  type="text"
+                  id="source-reference"
+                  name="source_reference"
+                  placeholder="File reference or authorized source identifier"
+                >
+              </div>
+            </div>
+
+            <!-- FORM ACTIONS -->
+            <div class="form-actions">
+              <button
+                class="primary-button"
+                id="submit-button"
+                type="submit"
+              >
+                <span>Run Assessment</span>
+                <span class="button-arrow" aria-hidden="true">→</span>
+              </button>
+
+              <p>Review all entries before submitting.</p>
+            </div>
+
+          </form>
+        </section>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-column">
+
+          <!-- ASSESSMENT RESULTS -->
+          <section class="panel results-panel" id="results-panel">
+            <div class="panel-header">
+              <div>
+                <span class="section-number">02</span>
+                <h3>Assessment Results</h3>
+              </div>
+
+              <button
+                class="secondary-button"
+                id="copy-results"
+                type="button"
+              >
+                Copy JSON
+              </button>
+            </div>
+
+            <div class="results-body">
+
+              <div class="results-empty" id="results-empty">
+                <div class="empty-icon" aria-hidden="true">⌕</div>
+
+                <h4>No Results Available</h4>
+
+                <p>
+                  Submit an assessment to display the findings here.
+                </p>
+              </div>
+
+              <div
+                class="results-content hidden"
+                id="results-content"
+              >
+                <p class="result-summary" id="result-summary"></p>
+
+                <div
+                  class="result-metrics"
+                  id="result-metrics"
+                ></div>
+
+                <div
+                  class="claim-list"
+                  id="claim-list"
+                ></div>
+              </div>
+
+              <div
+                class="error-box hidden"
+                id="error-box"
+                role="alert"
+              ></div>
+
+            </div>
+
+            <div class="panel-footer">
+              Assessment output is a prototype finding, not a legal conclusion.
+            </div>
+          </section>
+
+          <!-- API CONNECTION -->
+          <section class="panel system-panel">
+            <div class="panel-header compact-header">
+              <div>
+                <span class="section-number">03</span>
+                <h3>API Connection</h3>
+              </div>
+            </div>
+
+            <div class="connection-body">
+              <div
+                class="connection-indicator"
+                id="connection-indicator"
+              >
+                <span class="status-dot offline"></span>
+              </div>
+
+              <div class="connection-info">
+                <strong id="api-status">Checking...</strong>
+
+                <p id="api-detail">
+                  Checking the local assessment service.
+                </p>
+              </div>
+
+              <span class="connection-label">LOCAL API</span>
+            </div>
+          </section>
+
+          <!-- ASSESSMENT STATISTICS -->
+          <section class="panel statistics-panel">
+            <div class="panel-header compact-header">
+              <div>
+                <span class="section-number">04</span>
+                <h3>Assessment Summary</h3>
+              </div>
+            </div>
+
+            <div class="statistics-grid" id="statistics-grid">
+
+              <div class="stat-item">
+                <strong id="stat-supported">0</strong>
+                <span>Supported</span>
+              </div>
+
+              <div class="stat-item">
+                <strong id="stat-contradicted">0</strong>
+                <span>Contradicted</span>
+              </div>
+
+              <div class="stat-item">
+                <strong id="stat-mixed">0</strong>
+                <span>Mixed</span>
+              </div>
+
+              <div class="stat-item">
+                <strong id="stat-insufficient">0</strong>
+                <span>Insufficient Evidence</span>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- RECENT ASSESSMENTS -->
+          <section class="panel history-panel" id="history-section">
+            <div class="panel-header compact-header">
+              <div>
+                <span class="section-number">05</span>
+                <h3>Recent Assessments</h3>
+              </div>
+
+              <span class="panel-reference">CURRENT SESSION</span>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Statement ID</th>
+                    <th>Case ID</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody id="history-table-body">
+                  <tr>
+                    <td colspan="3" class="table-empty">
+                      No assessments in this session.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- AI ASSISTANT -->
+      <section
+        class="assistant-section"
+        id="ai-assistant"
+        aria-labelledby="assistant-heading"
+      >
+
+        <div class="page-heading">
+          <div>
+            <p class="breadcrumb">ASHWATHAMA AI / AI ASSISTANT</p>
+
+            <h2 id="assistant-heading">AI Forensic Assistant</h2>
+
+            <p class="page-description">
+              Ask questions about digital forensics and understand
+              assessment findings.
+            </p>
+          </div>
+
+          <div class="prototype-label">
+            <span></span>
+            GEMINI AI
+          </div>
+        </div>
+
+        <div class="panel assistant-panel">
+
+          <!-- CHAT HEADER -->
+          <div class="panel-header">
+            <div>
+              <span class="section-number">06</span>
+              <h3>Conversation</h3>
+              <p>ASHWATHAMA AI Assistant</p>
+            </div>
+
+            <button
+              class="secondary-button"
+              id="clear-chat"
+              type="button"
+            >
+              Clear Chat
+            </button>
+          </div>
+
+          <!-- CHAT MESSAGES -->
+          <div
+            class="chat-messages"
+            id="chat-messages"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+          >
+
+            <div class="chat-message assistant-message">
+              <div class="chat-message-label">ASHWATHAMA AI</div>
+
+              <p>
+                Hello! I'm your AI assistant. You can ask me about
+                digital forensics, evidence analysis, or how to
+                understand assessment results.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- CHAT INPUT -->
+          <form id="chat-form" class="chat-form">
+
+            <div class="form-group">
+              <label for="chat-input">Your Message</label>
+
+              <textarea
+                id="chat-input"
+                name="message"
+                rows="3"
+                maxlength="4000"
+                placeholder="Ask a question about digital forensics..."
+                required
+              ></textarea>
+            </div>
+
+            <div class="chat-form-footer">
+              <span>Do not enter passwords or API keys.</span>
+
+              <button
+                type="submit"
+                id="chat-send-button"
+                class="primary-button"
+              >
+                <span>Send Message</span>
+                <span class="button-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+
+          </form>
+
+          <!-- CHAT DISCLAIMER -->
+          <div class="assistant-disclaimer">
+            <strong>Important:</strong>
+            AI-generated responses may be inaccurate.
+            Assessment findings must be evaluated against available evidence.
+            This prototype does not determine guilt or reliably detect deception.
+          </div>
+
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="page-footer">
+        <p>ASHWATHAMA AI · Digital Forensics Research Prototype</p>
+
+        <p>
+          Use only synthetic evidence or data you are authorized to examine.
+        </p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+</body>
+</html>
