@@ -8,6 +8,7 @@ from src.evidence.schema import EvidenceRecord
 from src.assessment.pipeline import run_assessment
 from src.assessment.assessment_schema import CaseAssessment
 from src.chatbot.chat_service import generate_chat_response
+from src.chatbot.forensic_tools import analyze_case_timeline
 
 
 app = FastAPI(
@@ -40,7 +41,8 @@ class AssessmentRequest(BaseModel):
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
     assessment: dict[str, Any] | None = None
-
+    case_id: str | None = Field(default=None, min_length=1, max_length=100)
+    evidence: list[EvidenceRecord] | None = None
 
 @app.get("/")
 def home():
@@ -75,9 +77,23 @@ def assess(request: AssessmentRequest):
 @app.post("/chat")
 def chat(request: ChatRequest):
     try:
+        tool_result = None
+
+        if request.case_id is not None:
+            if request.evidence is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Evidence records are required for timeline analysis.",
+                )
+
+            tool_result = analyze_case_timeline(
+                records=request.evidence,
+                case_id=request.case_id,
+            )
         answer = generate_chat_response(
             question=request.question,
             assessment=request.assessment,
+            tool_result=tool_result,
         )
 
         return {"answer": answer}
