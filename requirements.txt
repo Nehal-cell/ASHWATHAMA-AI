@@ -1,0 +1,6 @@
+
+fastapi==0.142.2
+uvicorn==0.54.0
+pydantic==2.13.5
+google-genai==2.30.1
+python-dotenv==1.2.4
