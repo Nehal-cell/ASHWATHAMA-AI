@@ -1,5 +1,5 @@
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://ashwathama-ai-backend.onrender.com";
 
 const form = document.getElementById("assessment-form");
 const submitButton = document.getElementById("submit-button");
