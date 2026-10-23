@@ -208,9 +208,15 @@ def match_claim_to_evidence(
         ):
             continue
 
+        elif (
+            claim.location is not None
+            and record.artifact_type == "location_record"
+        ):
+            # Raw GPS coordinates alone cannot confirm a named location.
+            continue
+
         else:
             supported_records.append(record)
-
     if supported_records and contradicted_records:
 
         best_support = max(

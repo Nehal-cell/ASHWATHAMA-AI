@@ -55,3 +55,38 @@ if __name__ == "__main__":
 
     print("Match result:")
     print(result.model_dump())
+
+
+def test_gps_coordinates_without_location_label_do_not_claim_location_match():
+    claim = Claim(
+        claim_id="CL_GPS_001",
+        statement_id="STMT_GPS_001",
+        subject="person",
+        action="arrived",
+        start_time=datetime(2026, 1, 15, 18, 30),
+        location="home",
+        description="The person stated they arrived home.",
+    )
+
+    evidence = [
+        EvidenceRecord(
+            case_id="CASE_GPS_001",
+            evidence_id="GPS_001",
+            source_device="Google Maps Timeline",
+            artifact_type="location_record",
+            event_time=datetime(2026, 1, 15, 18, 30),
+            description="GPS point from synthetic test data.",
+            source_tool="Google Maps Timeline Parser",
+            metadata={
+                "latitude": 28.6,
+                "longitude": 77.2,
+            },
+        )
+    ]
+
+    result = match_claim_to_evidence(
+        claim=claim,
+        evidence=evidence,
+    )
+
+    assert result.status == "INSUFFICIENT_EVIDENCE"
