@@ -90,3 +90,39 @@ def test_gps_coordinates_without_location_label_do_not_claim_location_match():
     )
 
     assert result.status == "INSUFFICIENT_EVIDENCE"
+
+
+def test_generic_gps_description_without_location_metadata_is_insufficient():
+    claim = Claim(
+        claim_id="CL_GPS_002",
+        statement_id="STMT_GPS_002",
+        subject="person",
+        action="was",
+        start_time=datetime(2026, 1, 15, 18, 0),
+        location="home",
+        description="The person was at home at 6:00 PM.",
+    )
+
+    evidence = [
+        EvidenceRecord(
+            case_id="CASE_GPS_002",
+            evidence_id="EV_GPS_002",
+            source_device="phone",
+            artifact_type="location",
+            event_time=datetime(2026, 1, 15, 18, 0),
+            description=(
+                "A GPS observation recorded near the stated home location "
+                "at 6:00 PM."
+            ),
+            source_tool="manual_test_entry",
+            reliability=0.9,
+            metadata={},
+        )
+    ]
+
+    result = match_claim_to_evidence(
+        claim=claim,
+        evidence=evidence,
+    )
+
+    assert result.status == "INSUFFICIENT_EVIDENCE"

@@ -1,3 +1,5 @@
+
+
 from src.evidence.schema import EvidenceRecord
 from src.statement_analysis.claim_schema import Claim
 from src.evidence_matching.match_schema import MatchResult
@@ -181,7 +183,6 @@ def match_claim_to_evidence(
             continue
         if not _is_evidence_relevant(claim, record):
             continue
-
         evidence_location = record.metadata.get("location")
 
         location_unreliable_artifacts = {
@@ -189,34 +190,34 @@ def match_claim_to_evidence(
             "file_activity",
         }
 
-        if (
-            claim.location is not None
-            and evidence_location is not None
-            and record.artifact_type not in location_unreliable_artifacts
-        ):
+        if claim.location is not None:
+            # These artifact types do not independently establish
+            # a person's physical location.
+            if record.artifact_type in location_unreliable_artifacts:
+                continue
+
+            # Raw GPS coordinates alone cannot confirm a named place.
             if (
-                claim.location.lower()
-                == str(evidence_location).lower()
+                record.artifact_type == "location_record"
+                and evidence_location is None
+            ):
+                continue
+
+            # A location claim requires structured location metadata.
+            if evidence_location is None:
+                continue
+
+            if (
+                claim.location.strip().casefold()
+                == str(evidence_location).strip().casefold()
             ):
                 supported_records.append(record)
             else:
                 contradicted_records.append(record)
 
-        elif (
-            claim.location is not None
-            and record.artifact_type in location_unreliable_artifacts
-        ):
-            continue
-
-        elif (
-            claim.location is not None
-            and record.artifact_type == "location_record"
-        ):
-            # Raw GPS coordinates alone cannot confirm a named location.
-            continue
-
         else:
             supported_records.append(record)
+
     if supported_records and contradicted_records:
 
         best_support = max(
