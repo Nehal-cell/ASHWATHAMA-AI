@@ -649,6 +649,32 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
+  
+  const metadataInput = document
+    .getElementById("evidence-metadata")
+    .value.trim();
+
+  let metadata = {};
+
+  if (metadataInput) {
+    try {
+      metadata = JSON.parse(metadataInput);
+
+      if (
+        metadata === null ||
+        Array.isArray(metadata) ||
+        typeof metadata !== "object"
+      ) {
+        throw new Error("Metadata must be a JSON object.");
+      }
+    } catch (error) {
+      alert(
+        'Invalid metadata JSON. Example: {"location": "home"}'
+      );
+      return;
+    }
+  }
+
   const evidence = {
     case_id: caseId,
     evidence_id: document.getElementById("evidence-id").value.trim(),
@@ -658,9 +684,10 @@ form.addEventListener("submit", async (event) => {
     description: document.getElementById("description").value.trim(),
     source_tool: document.getElementById("source-tool").value.trim(),
     reliability,
-    metadata: {},
+    metadata,
     collection_method: "manual_test_entry"
   };
+
 
   const sourceReference = document
     .getElementById("source-reference")
